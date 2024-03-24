@@ -66,17 +66,18 @@ def ChangeSettings():
 
 
 def ReadInSimulationData():
-    Data = [[0, 0] for i in range(MAX_TIME + 1)]
-    FileIn = open("SimulationData.txt", 'r')
+  Data = [[0, 0] for i in range(MAX_TIME + 1)]
+  FileIn = open("SimulationData.txt", 'r')
+  DataString = FileIn.readline()
+  Count = 0
+  while DataString != "" and Count < MAX_TIME:
+    Count += 1
+    SanitizedData = DataString.split(":")
+    Data[Count][ARRIVAL_TIME] = int(SanitizedData[0])
+    Data[Count][ITEMS] = int(SanitizedData[1])
     DataString = FileIn.readline()
-    Count = 0
-    while DataString != "" and Count < MAX_TIME:
-        Count += 1
-        Data[Count][ARRIVAL_TIME] = int(DataString[0])
-        Data[Count][ITEMS] = int(DataString[2:])
-        DataString = FileIn.readline()
-    FileIn.close()
-    return Data
+  FileIn.close()
+  return Data
 
 
 def OutputHeading():
