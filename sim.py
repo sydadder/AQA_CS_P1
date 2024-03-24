@@ -223,6 +223,8 @@ def QueueSimulator():
     Data = ReadInSimulationData()
     OutputHeading()
     TimeToNextArrival = Data[BuyerNumber + 1][ARRIVAL_TIME]
+
+    ### Serve until closing time i.e. SiumulationTime
     for TimeUnit in range(SimulationTime):
         TimeToNextArrival -= 1
         print(f"{TimeUnit:>3d}", end='')
@@ -232,19 +234,27 @@ def QueueSimulator():
             TimeToNextArrival = Data[BuyerNumber + 1][ARRIVAL_TIME]
         else:
             print()
+
         Tills, NoOfTills, BuyerQ, QLength, Stats = Serving(Tills, NoOfTills, BuyerQ, QLength, Stats)
+
+
+    ### Serve remaining customers in the queue after closing hours.
     ExtraTime = 0
     while QLength > 0:
         TimeUnit = SimulationTime + ExtraTime
         print(f"{TimeUnit:>3d}")
         Tills, NoOfTills, BuyerQ, QLength, Stats = Serving(Tills, NoOfTills, BuyerQ, QLength, Stats)
         ExtraTime += 1
+
+
     while TillsBusy(Tills, NoOfTills):
         TimeUnit = SimulationTime + ExtraTime
         print(f"{TimeUnit:>3d}")
         Tills = UpdateTills(Tills, NoOfTills)
         OutputTillAndQueueStates(Tills, NoOfTills, BuyerQ, QLength)
         ExtraTime += 1
+
+    ### Final Status Output of all collected stats
     OutputStats(Stats, BuyerNumber, SimulationTime)
 
 
