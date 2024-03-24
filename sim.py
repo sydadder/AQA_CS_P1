@@ -246,7 +246,7 @@ def QueueSimulator():
         Tills, NoOfTills, BuyerQ, QLength, Stats = Serving(Tills, NoOfTills, BuyerQ, QLength, Stats)
         ExtraTime += 1
 
-
+    ### Complete serving the ones on the till
     while TillsBusy(Tills, NoOfTills):
         TimeUnit = SimulationTime + ExtraTime
         print(f"{TimeUnit:>3d}")
