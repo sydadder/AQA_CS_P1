@@ -109,17 +109,20 @@ class Simulation:
         FileIn.close()
         return self.data
 
+    #####
+    ##### THE BUYER #####
+    #####
+
     def buyer_arrives(self):
         print(f"  B{self.buyer_number}({self.data[self.buyer_number][self.ITEMS]})")
-        self.buyer_queue, self.queue_length = self.buyer_joins_queue(self.buyer_number)
-        return self.buyer_queue, self.queue_length
+        self.buyer_joins_queue(self.buyer_number)
+        return
 
     def buyer_joins_queue(self, buyer_number):
-        ItemsInBasket = self.data[buyer_number][self.ITEMS]
-        self.buyer_queue[self.queue_length].BuyerID = f"B{buyer_number}"
-        self.buyer_queue[self.queue_length].ItemsInBasket = ItemsInBasket
+        self.buyer_queue[self.queue_length].BuyerID         = f"B{buyer_number}"
+        self.buyer_queue[self.queue_length].ItemsInBasket   = self.data[buyer_number][self.ITEMS]
         self.queue_length += 1
-        return self.buyer_queue, self.queue_length
+        return
 
 
     #####
@@ -135,7 +138,7 @@ class Simulation:
     def serving(self):
         TillFree = self.FindFreeTill()
         while TillFree != -1 and self.queue_length > 0:
-            BuyerID, WaitingTime, ItemsInBasket = self.serve_buyer()
+            ItemsInBasket = self.serve_buyer()
             self.UpdateStats()
             self.CalculateServingTime(TillFree, ItemsInBasket)
             TillFree = self.FindFreeTill()
@@ -151,7 +154,7 @@ class Simulation:
 
     def serve_buyer(self):
         ThisBuyerID = self.buyer_queue[0].BuyerID
-        ThisBuyerWaitingTime = self.buyer_queue[0].WaitingTime
+        self.buyer_queue[0].WaitingTime
         ThisBuyerItems = self.buyer_queue[0].ItemsInBasket
         for Count in range(self.queue_length):
             self.buyer_queue[Count].BuyerID = self.buyer_queue[Count + 1].BuyerID
@@ -162,7 +165,7 @@ class Simulation:
         self.buyer_queue[self.queue_length].ItemsInBasket = 0
         self.queue_length -= 1
         print(f"{ThisBuyerID:>17s}", end="")
-        return ThisBuyerID, ThisBuyerWaitingTime, ThisBuyerItems
+        return ThisBuyerItems
 
     def IncrementTimeWaiting(self):
         for Count in range(self.queue_length):
@@ -201,7 +204,7 @@ class Simulation:
 
 
     #####
-    ##### STATS ####
+    ##### THE STATS ####
     #####
 
     def UpdateStats(self):
@@ -226,7 +229,8 @@ class Simulation:
     def OutputTillAndQueueStates(self):
         for i in range(1, self.no_of_tills + 1):
             print(
-                f"{i:>36d}{self.tills[i][self.TIME_IDLE]:>5d}{self.tills[i][self.TIME_BUSY]:>5d}{self.tills[i][self.TIME_SERVING]:>6d}"
+                f"{i:>36d}{self.tills[i][self.TIME_IDLE]:>5d}{self.tills[i][self.TIME_BUSY]:>5d}"
+                f"(B2) {self.tills[i][self.TIME_SERVING]:>6d}"
             )
         print("                                                    ** Start of queue **")
         for i in range(self.queue_length):
@@ -243,7 +247,7 @@ class Simulation:
     def queue_simulator(self):
         time_to_next_arrival = self.data[self.buyer_number + 1][self.ARRIVAL_TIME]
 
-        # Serve until closing time i.e. SiumulationTime
+        # Serve until closing time i.e. SimulationTime
         for time_unit in range(self.simulation_time):
             time_to_next_arrival -= 1
             print(f"{time_unit:>3d}", end="")
@@ -279,4 +283,4 @@ class Simulation:
 if __name__ == "__main__":
     simulation = Simulation()
     simulation.queue_simulator()
-    input("Press Enter to finish")
+    #input("Press Enter to finish")
