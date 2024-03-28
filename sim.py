@@ -237,7 +237,7 @@ class Simulation:
         print("------------------------------------------------------------------------")
 
     ####
-    #### SIMULATOR ####
+    #### THE SIMULATOR ####
     ####
 
     def queue_simulator(self):
@@ -279,4 +279,4 @@ class Simulation:
 if __name__ == "__main__":
     simulation = Simulation()
     simulation.queue_simulator()
-    #input("Press Enter to finish")
+    input("Press Enter to finish")
