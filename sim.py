@@ -56,47 +56,6 @@ class FinalStats:
             print(f"The average queue length was: {self.queue_length} buyers")
         print(f"{self.TOTAL_NO_WAIT} buyers did not need to queue")
 
-
-
-def OutputHeading():
-    print()
-    print("Time Buyer  | Start Till Serve | Till Time Time Time |      Queue")
-    print("     enters | serve      time  | num- idle busy ser- | Buyer Wait Items")
-    print("     (items)| buyer            | ber            ving | ID    time in")
-    print("            |                  |                     |            basket")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Simulation:
     BLANK = "   "
     MAX_Q_SIZE = 30
@@ -126,12 +85,14 @@ class Simulation:
         self.no_of_tills = 2
         self.data = [[0, 0] for _ in range(MAX_TIME + 1)]
         self.queue_length = 0
+        self.buyer_number = 0
 
         # Change settings
         self.change_settings()
         # obtain data
         self.read_in_simulation_data()
-        
+        # Output Heading
+        self.OutputHeading()
         # FinalStats
         self.stats = FinalStats()
 
@@ -169,9 +130,9 @@ class Simulation:
         FileIn.close()
         return self.data
 
-    def buyer_arrives(self, buyer_number):
-        print(f"  B{buyer_number}({self.data[buyer_number][ITEMS]})")
-        self.buyer_queue, self.queue_length = self.buyer_joins_queue(buyer_number)
+    def buyer_arrives(self):
+        print(f"  B{self.buyer_number}({self.data[self.buyer_number][ITEMS]})")
+        self.buyer_queue, self.queue_length = self.buyer_joins_queue(self.buyer_number)
         return self.buyer_queue, self.queue_length
 
     def buyer_joins_queue(self, buyer_number):
@@ -276,6 +237,13 @@ class Simulation:
     ##### OUTPUTS #######
     #####
 
+    def OutputHeading(self):
+        print()
+        print("Time Buyer  | Start Till Serve | Till Time Time Time |      Queue")
+        print("     enters | serve      time  | num- idle busy ser- | Buyer Wait Items")
+        print("     (items)| buyer            | ber            ving | ID    time in")
+        print("            |                  |                     |            basket")
+
     def OutputTillAndQueueStates(self):
         for i in range(1, self.no_of_tills + 1):
             print(
@@ -294,18 +262,16 @@ class Simulation:
     ####
 
     def queue_simulator(self):
-        buyer_number = self.queue_length = 0
-        OutputHeading()
-        time_to_next_arrival = self.data[buyer_number + 1][ARRIVAL_TIME]
+        time_to_next_arrival = self.data[self.buyer_number + 1][ARRIVAL_TIME]
 
         # Serve until closing time i.e. SiumulationTime
         for time_unit in range(self.simulation_time):
             time_to_next_arrival -= 1
             print(f"{time_unit:>3d}", end="")
             if time_to_next_arrival == 0:
-                buyer_number += 1
-                self.buyer_arrives(buyer_number)
-                time_to_next_arrival = self.data[buyer_number + 1][ARRIVAL_TIME]
+                self.buyer_number += 1
+                self.buyer_arrives()
+                time_to_next_arrival = self.data[self.buyer_number + 1][ARRIVAL_TIME]
             else:
                 print()
 
@@ -328,10 +294,10 @@ class Simulation:
             ExtraTime += 1
 
         # Final Status Output of all collected stats
-        self.stats.output_stats(buyer_number, self.simulation_time)
+        self.stats.output_stats(self.buyer_number, self.simulation_time)
 
 
 if __name__ == "__main__":
     simulation = Simulation()
     simulation.queue_simulator()
-    input("Press Enter to finish")
+    #input("Press Enter to finish")
