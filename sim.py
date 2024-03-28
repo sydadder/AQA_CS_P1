@@ -5,31 +5,10 @@
 
 # Version number: 0.0.1
 
-BLANK = "   "
-MAX_Q_SIZE = 30
-MAX_TILLS = 5
-MAX_TIME = 50
-TILL_SPEED = 3
-
-TIME_IDLE = 0
-TIME_BUSY = 1
-TIME_SERVING = 2
-
-ARRIVAL_TIME = 0
-ITEMS = 1
-
-# indices for Stats data structure
-MAX_Q_LENGTH = 0
-MAX_WAIT = 1
-TOTAL_WAIT = 2
-TOTAL_Q = 3
-TOTAL_Q_OCCURRENCE = 4
-TOTAL_NO_WAIT = 5
-
 
 class Q_Node:
     def __init__(self):
-        self.BuyerID = BLANK
+        self.BuyerID = "   "
         self.WaitingTime = 0
         self.ItemsInBasket = 0
 
@@ -83,7 +62,7 @@ class Simulation:
         self.buyer_queue = [Q_Node() for _ in range(self.MAX_Q_SIZE)]
         self.simulation_time = 10
         self.no_of_tills = 2
-        self.data = [[0, 0] for _ in range(MAX_TIME + 1)]
+        self.data = [[0, 0] for _ in range(self.MAX_TIME + 1)]
         self.queue_length = 0
         self.buyer_number = 0
 
@@ -121,22 +100,22 @@ class Simulation:
         FileIn = open("SimulationData.txt", "r")
         DataString = FileIn.readline()
         Count = 0
-        while DataString != "" and Count < MAX_TIME:
+        while DataString != "" and Count < self.MAX_TIME:
             Count += 1
             SanitizedData = DataString.split(":")
-            self.data[Count][ARRIVAL_TIME] = int(SanitizedData[0])
-            self.data[Count][ITEMS] = int(SanitizedData[1])
+            self.data[Count][self.ARRIVAL_TIME] = int(SanitizedData[0])
+            self.data[Count][self.ITEMS] = int(SanitizedData[1])
             DataString = FileIn.readline()
         FileIn.close()
         return self.data
 
     def buyer_arrives(self):
-        print(f"  B{self.buyer_number}({self.data[self.buyer_number][ITEMS]})")
+        print(f"  B{self.buyer_number}({self.data[self.buyer_number][self.ITEMS]})")
         self.buyer_queue, self.queue_length = self.buyer_joins_queue(self.buyer_number)
         return self.buyer_queue, self.queue_length
 
     def buyer_joins_queue(self, buyer_number):
-        ItemsInBasket = self.data[buyer_number][ITEMS]
+        ItemsInBasket = self.data[buyer_number][self.ITEMS]
         self.buyer_queue[self.queue_length].BuyerID = f"B{buyer_number}"
         self.buyer_queue[self.queue_length].ItemsInBasket = ItemsInBasket
         self.queue_length += 1
@@ -148,8 +127,8 @@ class Simulation:
     #####
 
     def CalculateServingTime(self,ThisTill, NoOfItems):
-        ServingTime = (NoOfItems // TILL_SPEED) + 1
-        self.tills[ThisTill][TIME_SERVING] = ServingTime
+        ServingTime = (NoOfItems // self.TILL_SPEED) + 1
+        self.tills[ThisTill][self.TIME_SERVING] = ServingTime
         print(f"{ThisTill:>6d}{ServingTime:>6d}")
         return
 
@@ -178,7 +157,7 @@ class Simulation:
             self.buyer_queue[Count].BuyerID = self.buyer_queue[Count + 1].BuyerID
             self.buyer_queue[Count].WaitingTime = self.buyer_queue[Count + 1].WaitingTime
             self.buyer_queue[Count].ItemsInBasket = self.buyer_queue[Count + 1].ItemsInBasket
-        self.buyer_queue[self.queue_length].BuyerID = BLANK
+        self.buyer_queue[self.queue_length].BuyerID = self.BLANK
         self.buyer_queue[self.queue_length].WaitingTime = 0
         self.buyer_queue[self.queue_length].ItemsInBasket = 0
         self.queue_length -= 1
@@ -195,7 +174,7 @@ class Simulation:
         TillNumber = 0
         while not FoundFreeTill and TillNumber < self.no_of_tills:
             TillNumber += 1
-            if self.tills[TillNumber][TIME_SERVING] == 0:
+            if self.tills[TillNumber][self.TIME_SERVING] == 0:
                 FoundFreeTill = True
         if FoundFreeTill:
             return TillNumber
@@ -204,18 +183,18 @@ class Simulation:
 
     def UpdateTills(self):
         for TillNumber in range(self.no_of_tills + 1):
-            if self.tills[TillNumber][TIME_SERVING] == 0:
-                self.tills[TillNumber][TIME_IDLE] += 1
+            if self.tills[TillNumber][self.TIME_SERVING] == 0:
+                self.tills[TillNumber][self.TIME_IDLE] += 1
             else:
-                self.tills[TillNumber][TIME_BUSY] += 1
-                self.tills[TillNumber][TIME_SERVING] -= 1
+                self.tills[TillNumber][self.TIME_BUSY] += 1
+                self.tills[TillNumber][self.TIME_SERVING] -= 1
         return self.tills
 
     def TillsBusy(self):
         IsBusy = False
         TillNumber = 0
         while not IsBusy and TillNumber <= self.no_of_tills:
-            if self.tills[TillNumber][TIME_SERVING] > 0:
+            if self.tills[TillNumber][self.TIME_SERVING] > 0:
                 IsBusy = True
             TillNumber += 1
         return IsBusy
@@ -247,7 +226,7 @@ class Simulation:
     def OutputTillAndQueueStates(self):
         for i in range(1, self.no_of_tills + 1):
             print(
-                f"{i:>36d}{self.tills[i][TIME_IDLE]:>5d}{self.tills[i][TIME_BUSY]:>5d}{self.tills[i][TIME_SERVING]:>6d}"
+                f"{i:>36d}{self.tills[i][self.TIME_IDLE]:>5d}{self.tills[i][self.TIME_BUSY]:>5d}{self.tills[i][self.TIME_SERVING]:>6d}"
             )
         print("                                                    ** Start of queue **")
         for i in range(self.queue_length):
@@ -262,7 +241,7 @@ class Simulation:
     ####
 
     def queue_simulator(self):
-        time_to_next_arrival = self.data[self.buyer_number + 1][ARRIVAL_TIME]
+        time_to_next_arrival = self.data[self.buyer_number + 1][self.ARRIVAL_TIME]
 
         # Serve until closing time i.e. SiumulationTime
         for time_unit in range(self.simulation_time):
@@ -271,7 +250,7 @@ class Simulation:
             if time_to_next_arrival == 0:
                 self.buyer_number += 1
                 self.buyer_arrives()
-                time_to_next_arrival = self.data[self.buyer_number + 1][ARRIVAL_TIME]
+                time_to_next_arrival = self.data[self.buyer_number + 1][self.ARRIVAL_TIME]
             else:
                 print()
 
