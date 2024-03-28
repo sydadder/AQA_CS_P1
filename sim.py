@@ -228,7 +228,7 @@ class Simulation:
         q = self.simulation_time
 
 
-
+# This is new
         self.stats.TOTAL_WAIT += self.buyer_queue[0].WaitingTime
         if self.buyer_queue[0].WaitingTime > self.stats.MAX_WAIT:
             self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime + 1
