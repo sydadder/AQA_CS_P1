@@ -33,9 +33,30 @@ class Q_Node:
         self.WaitingTime = 0
         self.ItemsInBasket = 0
 
+class FinalStats:
+    def __init__(self):
+        self.MAX_Q_LENGTH = 0
+        self.MAX_WAIT = 0
+        self.TOTAL_WAIT = 0
+        self.TOTAL_Q = 0
+        self.TOTAL_Q_OCCURRENCE = 0
+        self.TOTAL_NO_WAIT = 0
+
+    def OutputStats(self, BuyerNumber, SimulationTime):
+        print("The simulation statistics are:")
+        print("==============================")
+        print(f"The maximum queue length was: {self.MAX_Q_LENGTH} buyers")
+        print(f"The maximum waiting time was: {self.MAX_WAIT} time units")
+        print(f"{BuyerNumber} buyers arrived during {SimulationTime} time units")
+        AverageWaitingTime = round(self.TOTAL_WAIT / BuyerNumber, 1)
+        print(f"The average waiting time was: {AverageWaitingTime} time units")
+        if self.TOTAL_Q_OCCURRENCE > 0:
+            AverageQLength = round(self.TOTAL_Q / self.TOTAL_Q_OCCURRENCE, 2)
+            print(f"The average queue length was: {AverageQLength} buyers")
+        print(f"{self.TOTAL_NO_WAIT} buyers did not need to queue")
 
 def ResetDataStructures():
-    Stats = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    Stats = FinalStats()
     Tills = [[0, 0, 0] for i in range(MAX_TILLS + 1)]
     BuyerQ = [Q_Node() for i in range(MAX_Q_SIZE)]
     return Stats, Tills, BuyerQ
@@ -50,18 +71,18 @@ def ChangeSettings():
     print(f"Tills operating: {NoOfTills}")
     print("=================================")
     print()
-    Answer = input("Do you wish to change the settings?  Y/N: ")
-    if Answer == "Y":
-        print(f"Maximum simulation time is {MAX_TIME} time units")
-        SimulationTime = int(input("Simulation run time: "))
-        while SimulationTime > MAX_TIME or SimulationTime < 1:
-            print(f"Maximum simulation time is {MAX_TIME} time units")
-            SimulationTime = int(input("Simulation run time: "))
-        print(f"Maximum number of tills is {MAX_TILLS}")
-        NoOfTills = int(input("Number of tills in use: "))
-        while NoOfTills > MAX_TILLS or NoOfTills < 1:
-            print(f"Maximum number of tills is {MAX_TILLS}")
-            NoOfTills = int(input("Number of tills in use: "))
+    # Answer = input("Do you wish to change the settings?  Y/N: ")
+    # if Answer == "Y":
+    #     print(f"Maximum simulation time is {MAX_TIME} time units")
+    #     SimulationTime = int(input("Simulation run time: "))
+    #     while SimulationTime > MAX_TIME or SimulationTime < 1:
+    #         print(f"Maximum simulation time is {MAX_TIME} time units")
+    #         SimulationTime = int(input("Simulation run time: "))
+    #     print(f"Maximum number of tills is {MAX_TILLS}")
+    #     NoOfTills = int(input("Number of tills in use: "))
+    #     while NoOfTills > MAX_TILLS or NoOfTills < 1:
+    #         print(f"Maximum number of tills is {MAX_TILLS}")
+    #         NoOfTills = int(input("Number of tills in use: "))
     return SimulationTime, NoOfTills
 
 
@@ -132,11 +153,11 @@ def ServeBuyer(BuyerQ, QLength):
 
 
 def UpdateStats(Stats, WaitingTime):
-    Stats[TOTAL_WAIT] += WaitingTime
-    if WaitingTime > Stats[MAX_WAIT]:
-        Stats[MAX_WAIT] = WaitingTime
+    Stats.TOTAL_WAIT += WaitingTime
+    if WaitingTime > Stats.MAX_WAIT:
+        Stats.MAX_WAIT = WaitingTime
     if WaitingTime == 0:
-        Stats[TOTAL_NO_WAIT] += 1
+        Stats.TOTAL_NO_WAIT += 1
     return Stats
 
 
@@ -189,10 +210,10 @@ def Serving(Tills, NoOfTills, BuyerQ, QLength, Stats):
     BuyerQ = IncrementTimeWaiting(BuyerQ, QLength)
     Tills = UpdateTills(Tills, NoOfTills)
     if QLength > 0:
-        Stats[TOTAL_Q_OCCURRENCE] += 1
-        Stats[TOTAL_Q] += QLength
-    if QLength > Stats[MAX_Q_LENGTH]:
-        Stats[MAX_Q_LENGTH] = QLength
+        Stats.TOTAL_Q_OCCURRENCE += 1
+        Stats.TOTAL_Q += QLength
+    if QLength > Stats.MAX_Q_LENGTH:
+        Stats.MAX_Q_LENGTH = QLength
     OutputTillAndQueueStates(Tills, NoOfTills, BuyerQ, QLength)
     return Tills, NoOfTills, BuyerQ, QLength, Stats
 
@@ -205,20 +226,6 @@ def TillsBusy(Tills, NoOfTills):
             IsBusy = True
         TillNumber += 1
     return IsBusy
-
-
-def OutputStats(Stats, BuyerNumber, SimulationTime):
-    print("The simulation statistics are:")
-    print("==============================")
-    print(f"The maximum queue length was: {Stats[MAX_Q_LENGTH]} buyers")
-    print(f"The maximum waiting time was: {Stats[MAX_WAIT]} time units")
-    print(f"{BuyerNumber} buyers arrived during {SimulationTime} time units")
-    AverageWaitingTime = round(Stats[TOTAL_WAIT] / BuyerNumber, 1)
-    print(f"The average waiting time was: {AverageWaitingTime} time units")
-    if Stats[TOTAL_Q_OCCURRENCE] > 0:
-        AverageQLength = round(Stats[TOTAL_Q] / Stats[TOTAL_Q_OCCURRENCE], 2)
-        print(f"The average queue length was: {AverageQLength} buyers")
-    print(f"{Stats[TOTAL_NO_WAIT]} buyers did not need to queue")
 
 
 def QueueSimulator():
@@ -266,7 +273,7 @@ def QueueSimulator():
         ExtraTime += 1
 
     # Final Status Output of all collected stats
-    OutputStats(Stats, BuyerNumber, SimulationTime)
+    FinalStats.OutputStats(Stats, BuyerNumber, SimulationTime)
 
 
 if __name__ == "__main__":
