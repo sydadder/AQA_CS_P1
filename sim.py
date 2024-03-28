@@ -117,10 +117,10 @@ def BuyerJoinsQ(Data, BuyerQ, QLength, BuyerNumber):
     return BuyerQ, QLength
 
 
-def BuyerArrives(Data, BuyerQ, QLength, BuyerNumber, NoOfTills, Stats):
+def BuyerArrives(Data, BuyerQ, QLength, BuyerNumber):
     print(f"  B{BuyerNumber}({Data[BuyerNumber][ITEMS]})")
     BuyerQ, QLength = BuyerJoinsQ(Data, BuyerQ, QLength, BuyerNumber)
-    return BuyerQ, QLength, NoOfTills, Stats
+    return BuyerQ, QLength
 
 
 def FindFreeTill(Tills, NoOfTills):
@@ -243,8 +243,8 @@ def QueueSimulator():
         print(f"{TimeUnit:>3d}", end="")
         if TimeToNextArrival == 0:
             BuyerNumber += 1
-            BuyerQ, QLength, NoOfTills, Stats = BuyerArrives(
-                Data, BuyerQ, QLength, BuyerNumber, NoOfTills, Stats
+            BuyerQ, QLength = BuyerArrives(
+                Data, BuyerQ, QLength, BuyerNumber
             )
             TimeToNextArrival = Data[BuyerNumber + 1][ARRIVAL_TIME]
         else:
@@ -273,7 +273,8 @@ def QueueSimulator():
         ExtraTime += 1
 
     # Final Status Output of all collected stats
-    FinalStats.OutputStats(Stats, BuyerNumber, SimulationTime)
+    s = FinalStats()
+    s.OutputStats(BuyerNumber, SimulationTime)
 
 
 if __name__ == "__main__":
