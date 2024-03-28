@@ -41,64 +41,21 @@ class FinalStats:
         self.TOTAL_Q = 0
         self.TOTAL_Q_OCCURRENCE = 0
         self.TOTAL_NO_WAIT = 0
+        self.stats = [0 for _ in range(7)]
 
-    def OutputStats(self, BuyerNumber, SimulationTime):
+    def output_stats(self, buyer_number, simulation_time):
         print("The simulation statistics are:")
         print("==============================")
         print(f"The maximum queue length was: {self.MAX_Q_LENGTH} buyers")
         print(f"The maximum waiting time was: {self.MAX_WAIT} time units")
-        print(f"{BuyerNumber} buyers arrived during {SimulationTime} time units")
-        AverageWaitingTime = round(self.TOTAL_WAIT / BuyerNumber, 1)
+        print(f"{buyer_number} buyers arrived during {simulation_time} time units")
+        AverageWaitingTime = round(self.TOTAL_WAIT / buyer_number, 1)
         print(f"The average waiting time was: {AverageWaitingTime} time units")
         if self.TOTAL_Q_OCCURRENCE > 0:
-            AverageQLength = round(self.TOTAL_Q / self.TOTAL_Q_OCCURRENCE, 2)
-            print(f"The average queue length was: {AverageQLength} buyers")
+            self.queue_length = round(self.TOTAL_Q / self.TOTAL_Q_OCCURRENCE, 2)
+            print(f"The average queue length was: {self.queue_length} buyers")
         print(f"{self.TOTAL_NO_WAIT} buyers did not need to queue")
 
-def ResetDataStructures():
-    Stats = FinalStats()
-    Tills = [[0, 0, 0] for i in range(MAX_TILLS + 1)]
-    BuyerQ = [Q_Node() for i in range(MAX_Q_SIZE)]
-    return Stats, Tills, BuyerQ
-
-
-def ChangeSettings():
-    SimulationTime = 10
-    NoOfTills = 2
-    print("Settings set for this simulation:")
-    print("=================================")
-    print(f"Simulation time: {SimulationTime}")
-    print(f"Tills operating: {NoOfTills}")
-    print("=================================")
-    print()
-    # Answer = input("Do you wish to change the settings?  Y/N: ")
-    # if Answer == "Y":
-    #     print(f"Maximum simulation time is {MAX_TIME} time units")
-    #     SimulationTime = int(input("Simulation run time: "))
-    #     while SimulationTime > MAX_TIME or SimulationTime < 1:
-    #         print(f"Maximum simulation time is {MAX_TIME} time units")
-    #         SimulationTime = int(input("Simulation run time: "))
-    #     print(f"Maximum number of tills is {MAX_TILLS}")
-    #     NoOfTills = int(input("Number of tills in use: "))
-    #     while NoOfTills > MAX_TILLS or NoOfTills < 1:
-    #         print(f"Maximum number of tills is {MAX_TILLS}")
-    #         NoOfTills = int(input("Number of tills in use: "))
-    return SimulationTime, NoOfTills
-
-
-def ReadInSimulationData():
-    Data = [[0, 0] for i in range(MAX_TIME + 1)]
-    FileIn = open("SimulationData.txt", "r")
-    DataString = FileIn.readline()
-    Count = 0
-    while DataString != "" and Count < MAX_TIME:
-        Count += 1
-        SanitizedData = DataString.split(":")
-        Data[Count][ARRIVAL_TIME] = int(SanitizedData[0])
-        Data[Count][ITEMS] = int(SanitizedData[1])
-        DataString = FileIn.readline()
-    FileIn.close()
-    return Data
 
 
 def OutputHeading():
@@ -109,174 +66,272 @@ def OutputHeading():
     print("            |                  |                     |            basket")
 
 
-def BuyerJoinsQ(Data, BuyerQ, QLength, BuyerNumber):
-    ItemsInBasket = Data[BuyerNumber][ITEMS]
-    BuyerQ[QLength].BuyerID = f"B{BuyerNumber}"
-    BuyerQ[QLength].ItemsInBasket = ItemsInBasket
-    QLength += 1
-    return BuyerQ, QLength
 
 
-def BuyerArrives(Data, BuyerQ, QLength, BuyerNumber):
-    print(f"  B{BuyerNumber}({Data[BuyerNumber][ITEMS]})")
-    BuyerQ, QLength = BuyerJoinsQ(Data, BuyerQ, QLength, BuyerNumber)
-    return BuyerQ, QLength
 
 
-def FindFreeTill(Tills, NoOfTills):
-    FoundFreeTill = False
-    TillNumber = 0
-    while not FoundFreeTill and TillNumber < NoOfTills:
-        TillNumber += 1
-        if Tills[TillNumber][TIME_SERVING] == 0:
-            FoundFreeTill = True
-    if FoundFreeTill:
-        return TillNumber
-    else:
-        return -1
 
 
-def ServeBuyer(BuyerQ, QLength):
-    ThisBuyerID = BuyerQ[0].BuyerID
-    ThisBuyerWaitingTime = BuyerQ[0].WaitingTime
-    ThisBuyerItems = BuyerQ[0].ItemsInBasket
-    for Count in range(QLength):
-        BuyerQ[Count].BuyerID = BuyerQ[Count + 1].BuyerID
-        BuyerQ[Count].WaitingTime = BuyerQ[Count + 1].WaitingTime
-        BuyerQ[Count].ItemsInBasket = BuyerQ[Count + 1].ItemsInBasket
-    BuyerQ[QLength].BuyerID = BLANK
-    BuyerQ[QLength].WaitingTime = 0
-    BuyerQ[QLength].ItemsInBasket = 0
-    QLength -= 1
-    print(f"{ThisBuyerID:>17s}", end="")
-    return BuyerQ, QLength, ThisBuyerID, ThisBuyerWaitingTime, ThisBuyerItems
 
 
-def UpdateStats(Stats, WaitingTime):
-    Stats.TOTAL_WAIT += WaitingTime
-    if WaitingTime > Stats.MAX_WAIT:
-        Stats.MAX_WAIT = WaitingTime
-    if WaitingTime == 0:
-        Stats.TOTAL_NO_WAIT += 1
-    return Stats
 
 
-def CalculateServingTime(Tills, ThisTill, NoOfItems):
-    ServingTime = (NoOfItems // TILL_SPEED) + 1
-    Tills[ThisTill][TIME_SERVING] = ServingTime
-    print(f"{ThisTill:>6d}{ServingTime:>6d}")
-    return Tills
 
 
-def IncrementTimeWaiting(BuyerQ, QLength):
-    for Count in range(QLength):
-        BuyerQ[Count].WaitingTime += 1
-    return BuyerQ
 
 
-def UpdateTills(Tills, NoOfTills):
-    for TillNumber in range(NoOfTills + 1):
-        if Tills[TillNumber][TIME_SERVING] == 0:
-            Tills[TillNumber][TIME_IDLE] += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Simulation:
+    BLANK = "   "
+    MAX_Q_SIZE = 30
+    MAX_TILLS = 5
+    MAX_TIME = 50
+    TILL_SPEED = 3
+
+    TIME_IDLE = 0
+    TIME_BUSY = 1
+    TIME_SERVING = 2
+
+    ARRIVAL_TIME = 0
+    ITEMS = 1
+
+    TOTAL_WAIT = 2
+    MAX_WAIT = 1
+    TOTAL_Q = 3
+    TOTAL_Q_OCCURRENCE = 4
+    TOTAL_NO_WAIT = 5
+    MAX_Q_LENGTH = 0
+
+    def __init__(self):
+
+        self.tills = [[0, 0, 0] for _ in range(self.MAX_TILLS + 1)]
+        self.buyer_queue = [Q_Node() for _ in range(self.MAX_Q_SIZE)]
+        self.simulation_time = 10
+        self.no_of_tills = 2
+        self.data = [[0, 0] for _ in range(MAX_TIME + 1)]
+        self.queue_length = 0
+
+        # Change settings
+        self.change_settings()
+        # obtain data
+        self.read_in_simulation_data()
+        
+        # FinalStats
+        self.stats = FinalStats()
+
+    def change_settings(self):
+        print("Settings set for this simulation:")
+        print("=================================")
+        print(f"Simulation time: {self.simulation_time}")
+        print(f"Tills operating: {self.no_of_tills}")
+        print("=================================")
+        print()
+        # answer = input("Do you wish to change the settings?  Y/N: ")
+        # if answer == 'Y':
+        #     print(f"Maximum simulation time is {self.MAX_TIME} time units")
+        #     simulation_time = int(input("Simulation run time: "))
+        #     while simulation_time > self.MAX_TIME or simulation_time < 1:
+        #         print(f"Maximum simulation time is {self.MAX_TIME} time units")
+        #         simulation_time = int(input("Simulation run time: "))
+        #     print(f"Maximum number of tills is {self.MAX_TILLS}")
+        #     no_of_tills = int(input("Number of tills in use: "))
+        #     while no_of_tills > self.MAX_TILLS or no_of_tills < 1:
+        #         print(f"Maximum number of tills is {self.MAX_TILLS}")
+        #         no_of_tills = int(input("Number of tills in use: "))
+        return self.simulation_time, self.no_of_tills
+
+    def read_in_simulation_data(self):
+        FileIn = open("SimulationData.txt", "r")
+        DataString = FileIn.readline()
+        Count = 0
+        while DataString != "" and Count < MAX_TIME:
+            Count += 1
+            SanitizedData = DataString.split(":")
+            self.data[Count][ARRIVAL_TIME] = int(SanitizedData[0])
+            self.data[Count][ITEMS] = int(SanitizedData[1])
+            DataString = FileIn.readline()
+        FileIn.close()
+        return self.data
+
+    def buyer_arrives(self, buyer_number):
+        print(f"  B{buyer_number}({self.data[buyer_number][ITEMS]})")
+        self.buyer_queue, self.queue_length = self.buyer_joins_queue(buyer_number)
+        return self.buyer_queue, self.queue_length
+
+    def buyer_joins_queue(self, buyer_number):
+        ItemsInBasket = self.data[buyer_number][ITEMS]
+        self.buyer_queue[self.queue_length].BuyerID = f"B{buyer_number}"
+        self.buyer_queue[self.queue_length].ItemsInBasket = ItemsInBasket
+        self.queue_length += 1
+        return self.buyer_queue, self.queue_length
+
+
+    #####
+    ##### SERVICE #####
+    #####
+
+    def CalculateServingTime(self,ThisTill, NoOfItems):
+        ServingTime = (NoOfItems // TILL_SPEED) + 1
+        self.tills[ThisTill][TIME_SERVING] = ServingTime
+        print(f"{ThisTill:>6d}{ServingTime:>6d}")
+        return
+
+    def serving(self):
+        TillFree = self.FindFreeTill()
+        while TillFree != -1 and self.queue_length > 0:
+            BuyerID, WaitingTime, ItemsInBasket = self.serve_buyer()
+            self.UpdateStats()
+            self.CalculateServingTime(TillFree, ItemsInBasket)
+            TillFree = self.FindFreeTill()
+        self.buyer_queue = self.IncrementTimeWaiting()
+        self.UpdateTills()
+        if self.queue_length > 0:
+            self.stats.TOTAL_Q_OCCURRENCE += 1
+            self.stats.TOTAL_Q += self.queue_length
+        if self.queue_length > self.stats.MAX_Q_LENGTH:
+            self.stats.MAX_Q_LENGTH = self.queue_length
+        self.OutputTillAndQueueStates()
+        return
+
+    def serve_buyer(self):
+        ThisBuyerID = self.buyer_queue[0].BuyerID
+        ThisBuyerWaitingTime = self.buyer_queue[0].WaitingTime
+        ThisBuyerItems = self.buyer_queue[0].ItemsInBasket
+        for Count in range(self.queue_length):
+            self.buyer_queue[Count].BuyerID = self.buyer_queue[Count + 1].BuyerID
+            self.buyer_queue[Count].WaitingTime = self.buyer_queue[Count + 1].WaitingTime
+            self.buyer_queue[Count].ItemsInBasket = self.buyer_queue[Count + 1].ItemsInBasket
+        self.buyer_queue[self.queue_length].BuyerID = BLANK
+        self.buyer_queue[self.queue_length].WaitingTime = 0
+        self.buyer_queue[self.queue_length].ItemsInBasket = 0
+        self.queue_length -= 1
+        print(f"{ThisBuyerID:>17s}", end="")
+        return ThisBuyerID, ThisBuyerWaitingTime, ThisBuyerItems
+
+    def IncrementTimeWaiting(self):
+        for Count in range(self.queue_length):
+            self.buyer_queue[Count].WaitingTime += 1
+        return self.buyer_queue
+
+    def FindFreeTill(self):
+        FoundFreeTill = False
+        TillNumber = 0
+        while not FoundFreeTill and TillNumber < self.no_of_tills:
+            TillNumber += 1
+            if self.tills[TillNumber][TIME_SERVING] == 0:
+                FoundFreeTill = True
+        if FoundFreeTill:
+            return TillNumber
         else:
-            Tills[TillNumber][TIME_BUSY] += 1
-            Tills[TillNumber][TIME_SERVING] -= 1
-    return Tills
+            return -1
+
+    def UpdateTills(self):
+        for TillNumber in range(self.no_of_tills + 1):
+            if self.tills[TillNumber][TIME_SERVING] == 0:
+                self.tills[TillNumber][TIME_IDLE] += 1
+            else:
+                self.tills[TillNumber][TIME_BUSY] += 1
+                self.tills[TillNumber][TIME_SERVING] -= 1
+        return self.tills
+
+    def TillsBusy(self):
+        IsBusy = False
+        TillNumber = 0
+        while not IsBusy and TillNumber <= self.no_of_tills:
+            if self.tills[TillNumber][TIME_SERVING] > 0:
+                IsBusy = True
+            TillNumber += 1
+        return IsBusy
 
 
-def OutputTillAndQueueStates(Tills, NoOfTills, BuyerQ, QLength):
-    for i in range(1, NoOfTills + 1):
-        print(
-            f"{i:>36d}{Tills[i][TIME_IDLE]:>5d}{Tills[i][TIME_BUSY]:>5d}{Tills[i][TIME_SERVING]:>6d}"
-        )
-    print("                                                    ** Start of queue **")
-    for i in range(QLength):
-        print(
-            f"{BuyerQ[i].BuyerID:>57s}{BuyerQ[i].WaitingTime:>7d}{BuyerQ[i].ItemsInBasket:>6d}"
-        )
-    print("                                                    *** End of queue ***")
-    print("------------------------------------------------------------------------")
+    #####
+    ##### STATS ####
+    #####
 
+    def UpdateStats(self):
+        self.stats.TOTAL_WAIT += self.buyer_queue[0].WaitingTime
+        if self.buyer_queue[0].WaitingTime > self.stats.MAX_WAIT:
+            self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime
+        if self.buyer_queue[0].WaitingTime == 0:
+            self.stats.TOTAL_NO_WAIT += 1
+        return self.stats
 
-def Serving(Tills, NoOfTills, BuyerQ, QLength, Stats):
-    TillFree = FindFreeTill(Tills, NoOfTills)
-    while TillFree != -1 and QLength > 0:
-        BuyerQ, QLength, BuyerID, WaitingTime, ItemsInBasket = ServeBuyer(
-            BuyerQ, QLength
-        )
-        Stats = UpdateStats(Stats, WaitingTime)
-        Tills = CalculateServingTime(Tills, TillFree, ItemsInBasket)
-        TillFree = FindFreeTill(Tills, NoOfTills)
-    BuyerQ = IncrementTimeWaiting(BuyerQ, QLength)
-    Tills = UpdateTills(Tills, NoOfTills)
-    if QLength > 0:
-        Stats.TOTAL_Q_OCCURRENCE += 1
-        Stats.TOTAL_Q += QLength
-    if QLength > Stats.MAX_Q_LENGTH:
-        Stats.MAX_Q_LENGTH = QLength
-    OutputTillAndQueueStates(Tills, NoOfTills, BuyerQ, QLength)
-    return Tills, NoOfTills, BuyerQ, QLength, Stats
+    #####
+    ##### OUTPUTS #######
+    #####
 
-
-def TillsBusy(Tills, NoOfTills):
-    IsBusy = False
-    TillNumber = 0
-    while not IsBusy and TillNumber <= NoOfTills:
-        if Tills[TillNumber][TIME_SERVING] > 0:
-            IsBusy = True
-        TillNumber += 1
-    return IsBusy
-
-
-def QueueSimulator():
-    BuyerNumber = 0
-    QLength = 0
-    Stats, Tills, BuyerQ = ResetDataStructures()
-    SimulationTime, NoOfTills = ChangeSettings()
-    Data = ReadInSimulationData()
-    OutputHeading()
-    TimeToNextArrival = Data[BuyerNumber + 1][ARRIVAL_TIME]
-
-    # Serve until closing time i.e. SiumulationTime
-    for TimeUnit in range(SimulationTime):
-        TimeToNextArrival -= 1
-        print(f"{TimeUnit:>3d}", end="")
-        if TimeToNextArrival == 0:
-            BuyerNumber += 1
-            BuyerQ, QLength = BuyerArrives(
-                Data, BuyerQ, QLength, BuyerNumber
+    def OutputTillAndQueueStates(self):
+        for i in range(1, self.no_of_tills + 1):
+            print(
+                f"{i:>36d}{self.tills[i][TIME_IDLE]:>5d}{self.tills[i][TIME_BUSY]:>5d}{self.tills[i][TIME_SERVING]:>6d}"
             )
-            TimeToNextArrival = Data[BuyerNumber + 1][ARRIVAL_TIME]
-        else:
-            print()
+        print("                                                    ** Start of queue **")
+        for i in range(self.queue_length):
+            print(
+                f"{self.buyer_queue[i].BuyerID:>57s}{self.buyer_queue[i].WaitingTime:>7d}{self.buyer_queue[i].ItemsInBasket:>6d}"
+            )
+        print("                                                    *** End of queue ***")
+        print("------------------------------------------------------------------------")
 
-        Tills, NoOfTills, BuyerQ, QLength, Stats = Serving(
-            Tills, NoOfTills, BuyerQ, QLength, Stats
-        )
+    ####
+    #### SIMULATOR ####
+    ####
 
-    # Serve remaining customers in the queue after closing hours.
-    ExtraTime = 0
-    while QLength > 0:
-        TimeUnit = SimulationTime + ExtraTime
-        print(f"{TimeUnit:>3d}")
-        Tills, NoOfTills, BuyerQ, QLength, Stats = Serving(
-            Tills, NoOfTills, BuyerQ, QLength, Stats
-        )
-        ExtraTime += 1
+    def queue_simulator(self):
+        buyer_number = self.queue_length = 0
+        OutputHeading()
+        time_to_next_arrival = self.data[buyer_number + 1][ARRIVAL_TIME]
 
-    # Complete serving the ones on the till
-    while TillsBusy(Tills, NoOfTills):
-        TimeUnit = SimulationTime + ExtraTime
-        print(f"{TimeUnit:>3d}")
-        Tills = UpdateTills(Tills, NoOfTills)
-        OutputTillAndQueueStates(Tills, NoOfTills, BuyerQ, QLength)
-        ExtraTime += 1
+        # Serve until closing time i.e. SiumulationTime
+        for time_unit in range(self.simulation_time):
+            time_to_next_arrival -= 1
+            print(f"{time_unit:>3d}", end="")
+            if time_to_next_arrival == 0:
+                buyer_number += 1
+                self.buyer_arrives(buyer_number)
+                time_to_next_arrival = self.data[buyer_number + 1][ARRIVAL_TIME]
+            else:
+                print()
 
-    # Final Status Output of all collected stats
-    s = FinalStats()
-    s.OutputStats(BuyerNumber, SimulationTime)
+            self.serving()
+
+        # Serve remaining customers in the queue after closing hours.
+        ExtraTime = 0
+        while self.queue_length > 0:
+            time_unit = self.simulation_time + ExtraTime
+            print(f"{time_unit:>3d}")
+            self.serving()
+            ExtraTime += 1
+
+        # Complete serving the ones on the till
+        while self.TillsBusy():
+            time_unit = self.simulation_time + ExtraTime
+            print(f"{time_unit:>3d}")
+            self.UpdateTills()
+            self.OutputTillAndQueueStates()
+            ExtraTime += 1
+
+        # Final Status Output of all collected stats
+        self.stats.output_stats(buyer_number, self.simulation_time)
 
 
 if __name__ == "__main__":
-    QueueSimulator()
+    simulation = Simulation()
+    simulation.queue_simulator()
     input("Press Enter to finish")
