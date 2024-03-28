@@ -50,11 +50,8 @@ class Simulation:
     ITEMS = 1
 
     TOTAL_WAIT = 2
-    MAX_WAIT = 1
     TOTAL_Q = 3
     TOTAL_Q_OCCURRENCE = 4
-    TOTAL_NO_WAIT = 5
-    MAX_Q_LENGTH = 0
 
     def __init__(self):
 
@@ -208,9 +205,33 @@ class Simulation:
     #####
 
     def UpdateStats(self):
+        a = self.stats.TOTAL_WAIT
+        b = self.stats.MAX_WAIT
+        c = self.stats.TOTAL_NO_WAIT
+        d = self.buyer_number
+        e = self.buyer_queue[0].BuyerID
+        f = self.buyer_queue[0].WaitingTime
+        g = self.buyer_queue[0].ItemsInBasket
+
+        h = self.buyer_queue[1].BuyerID
+        i = self.buyer_queue[1].WaitingTime
+        j = self.buyer_queue[1].ItemsInBasket
+
+        k = self.buyer_queue[2].BuyerID
+        l = self.buyer_queue[2].WaitingTime
+        m = self.buyer_queue[2].ItemsInBasket
+
+        n = self.buyer_queue[3].BuyerID
+        o = self.buyer_queue[3].WaitingTime
+        p = self.buyer_queue[3].ItemsInBasket
+
+        q = self.simulation_time
+
+
+
         self.stats.TOTAL_WAIT += self.buyer_queue[0].WaitingTime
         if self.buyer_queue[0].WaitingTime > self.stats.MAX_WAIT:
-            self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime
+            self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime + 1
         if self.buyer_queue[0].WaitingTime == 0:
             self.stats.TOTAL_NO_WAIT += 1
         return self.stats
