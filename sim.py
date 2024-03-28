@@ -229,8 +229,7 @@ class Simulation:
     def OutputTillAndQueueStates(self):
         for i in range(1, self.no_of_tills + 1):
             print(
-                f"{i:>36d}{self.tills[i][self.TIME_IDLE]:>5d}{self.tills[i][self.TIME_BUSY]:>5d}"
-                f"(B2) {self.tills[i][self.TIME_SERVING]:>6d}"
+                f"{i:>36d}{self.tills[i][self.TIME_IDLE]:>5d}{self.tills[i][self.TIME_BUSY]:>5d}{self.tills[i][self.TIME_SERVING]:>6d}"
             )
         print("                                                    ** Start of queue **")
         for i in range(self.queue_length):
