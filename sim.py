@@ -110,14 +110,11 @@ class Simulation:
     ##### THE BUYER #####
     #####
 
+    # The buyer arrives and joins the queue
     def buyer_arrives(self):
         print(f"  B{self.buyer_number}({self.data[self.buyer_number][self.ITEMS]})")
-        self.buyer_joins_queue(self.buyer_number)
-        return
-
-    def buyer_joins_queue(self, buyer_number):
-        self.buyer_queue[self.queue_length].BuyerID         = f"B{buyer_number}"
-        self.buyer_queue[self.queue_length].ItemsInBasket   = self.data[buyer_number][self.ITEMS]
+        self.buyer_queue[self.queue_length].BuyerID = f"B{self.buyer_number}"
+        self.buyer_queue[self.queue_length].ItemsInBasket = self.data[self.buyer_number][self.ITEMS]
         self.queue_length += 1
         return
 
