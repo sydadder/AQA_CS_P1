@@ -123,12 +123,6 @@ class Simulation:
     ##### SERVICE #####
     #####
 
-    def CalculateServingTime(self,ThisTill, NoOfItems):
-        ServingTime = (NoOfItems // self.TILL_SPEED) + 1
-        self.tills[ThisTill][self.TIME_SERVING] = ServingTime
-        print(f"{ThisTill:>6d}{ServingTime:>6d}")
-        return
-
     def serving(self):
         TillFree = self.FindFreeTill()
         while TillFree != -1 and self.queue_length > 0:
@@ -160,6 +154,12 @@ class Simulation:
         self.queue_length -= 1
         print(f"{ThisBuyerID:>17s}", end="")
         return ThisBuyerItems
+
+    def CalculateServingTime(self,ThisTill, NoOfItems):
+        ServingTime = (NoOfItems // self.TILL_SPEED) + 1
+        self.tills[ThisTill][self.TIME_SERVING] = ServingTime
+        print(f"{ThisTill:>6d}{ServingTime:>6d}")
+        return
 
     def IncrementTimeWaiting(self):
         for Count in range(self.queue_length):
