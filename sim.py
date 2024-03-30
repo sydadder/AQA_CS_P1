@@ -126,9 +126,9 @@ class Simulation:
     def serving(self):
         TillFree = self.FindFreeTill()
         while TillFree != -1 and self.queue_length > 0:
-            ItemsInBasket = self.serve_buyer()
             self.UpdateStats()
-            self.CalculateServingTime(TillFree, ItemsInBasket)
+            self.CalculateServingTime(TillFree)
+            self.serve_buyer()
             TillFree = self.FindFreeTill()
         self.buyer_queue = self.IncrementTimeWaiting()
         self.UpdateTills()
@@ -155,8 +155,8 @@ class Simulation:
         print(f"{ThisBuyerID:>17s}", end="")
         return ThisBuyerItems
 
-    def CalculateServingTime(self,ThisTill, NoOfItems):
-        ServingTime = (NoOfItems // self.TILL_SPEED) + 1
+    def CalculateServingTime(self,ThisTill):
+        ServingTime = (self.buyer_queue[0].ItemsInBasket // self.TILL_SPEED) + 1
         self.tills[ThisTill][self.TIME_SERVING] = ServingTime
         print(f"{ThisTill:>6d}{ServingTime:>6d}")
         return
@@ -228,14 +228,14 @@ class Simulation:
 # This is new
         self.stats.TOTAL_WAIT += self.buyer_queue[0].WaitingTime
         if self.buyer_queue[0].WaitingTime > self.stats.MAX_WAIT:
-            self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime + 1
+            self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime
         if self.buyer_queue[0].WaitingTime == 0:
             self.stats.TOTAL_NO_WAIT += 1
-        print(f"-- update_stats "
-              f"TOTAL_WAIT {self.stats.TOTAL_WAIT} "
-              f"WaitingTime {self.buyer_queue[0].WaitingTime} "
-              f"Stats[MAX_WAIT] {self.stats.MAX_WAIT} "
-              f"Stats[TOTAL_NO_WAIT] {self.stats.TOTAL_NO_WAIT}")
+        # print(f"-- update_stats "
+        #       f"TOTAL_WAIT {self.stats.TOTAL_WAIT} "
+        #       f"WaitingTime {self.buyer_queue[0].WaitingTime} "
+        #       f"Stats[MAX_WAIT] {self.stats.MAX_WAIT} "
+        #       f"Stats[TOTAL_NO_WAIT] {self.stats.TOTAL_NO_WAIT}")
         return self.stats
 
     #####
