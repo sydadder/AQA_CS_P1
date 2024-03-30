@@ -231,6 +231,11 @@ class Simulation:
             self.stats.MAX_WAIT = self.buyer_queue[0].WaitingTime + 1
         if self.buyer_queue[0].WaitingTime == 0:
             self.stats.TOTAL_NO_WAIT += 1
+        print(f"-- update_stats "
+              f"TOTAL_WAIT {self.stats.TOTAL_WAIT} "
+              f"WaitingTime {self.buyer_queue[0].WaitingTime} "
+              f"Stats[MAX_WAIT] {self.stats.MAX_WAIT} "
+              f"Stats[TOTAL_NO_WAIT] {self.stats.TOTAL_NO_WAIT}")
         return self.stats
 
     #####
