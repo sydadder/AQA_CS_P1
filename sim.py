@@ -152,12 +152,13 @@ class Simulation:
         self.buyer_queue[self.queue_length].WaitingTime = 0
         self.buyer_queue[self.queue_length].ItemsInBasket = 0
         self.queue_length -= 1
-        print(f"{ThisBuyerID:>17s}", end="")
+        #print(f"{ThisBuyerID:>17s}", end="")
         return ThisBuyerItems
 
     def CalculateServingTime(self,ThisTill):
         ServingTime = (self.buyer_queue[0].ItemsInBasket // self.TILL_SPEED) + 1
         self.tills[ThisTill][self.TIME_SERVING] = ServingTime
+        print(f"{self.buyer_queue[0].BuyerID:>17s}", end="")
         print(f"{ThisTill:>6d}{ServingTime:>6d}")
         return
 
